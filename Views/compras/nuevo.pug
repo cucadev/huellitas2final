@@ -1,0 +1,28 @@
+extends ../layout
+
+block content
+  h2.text-center.mb-4 Nueva Compra
+
+  form(action="/compras/nuevo" method="POST" class="mx-auto" style="max-width: 500px;")
+    .mb-3
+      label.form-label(for="producto") Producto
+      select.form-select(name="producto" required)
+        option(value="" disabled selected) Seleccione un producto
+        each prod in productos
+          option(value=prod._id)= prod.nombre
+
+    .mb-3
+      label.form-label(for="cantidad") Cantidad
+      input.form-control(type="number" name="cantidad" required min="1")
+
+    .mb-3
+      label.form-label(for="precioUnitario") Precio Unitario
+      input.form-control(type="number" step="0.01" name="precioUnitario" required)
+
+    .mb-3
+      label.form-label(for="proveedor") Proveedor
+      input.form-control(type="text" name="proveedor" required)
+
+    .d-flex.justify-content-between.mt-4
+      a.btn.btn-secondary(href="/compras") Cancelar
+      button.btn.btn-nuevo(type="submit") Guardar Compra

@@ -1,0 +1,57 @@
+extends ../layout.pug
+
+block content
+  h1 #{titulo}
+
+  form(action="/mascotas/nuevo" method="POST")
+    .mb-3
+      label.form-label(for="nombre") Nombre
+      input.form-control(type="text" name="nombre" required)
+
+    .mb-3
+      label.form-label(for="especie") Especie
+      input.form-control(type="text" name="especie" required)
+
+    .mb-3
+      label.form-label(for="raza") Raza
+      input.form-control(type="text" name="raza")
+
+    .mb-3
+      label.form-label(for="sexo") Sexo
+      select.form-select(name="sexo" required)
+        option(value="") -- Seleccione --
+        option(value="Macho") Macho
+        option(value="Hembra") Hembra
+
+    .mb-3
+      label.form-label(for="edad") Edad (años)
+      input.form-control(type="number" name="edad" min="0" required)
+
+    .mb-3
+      label.form-label(for="peso") Peso (kg)
+      input.form-control(type="number" step="0.01" name="peso")
+
+    .mb-3
+      label.form-label(for="fechaPrimeraConsulta") Fecha de Primera Consulta
+      input.form-control(type="date" name="fechaPrimeraConsulta" required)
+
+    .mb-3
+      label.form-label(for="cliente") Dueño
+      select.form-select(name="cliente" required)
+        option(value="") -- Seleccione un cliente --
+        each cliente in clientes
+          option(value=cliente._id) #{cliente.nombre} #{cliente.apellido}
+
+    .mb-3
+      label.form-label(for="numeroChip") Número de Chip (opcional)
+      input.form-control(type="text" name="numeroChip")
+
+    .mb-3
+      label.form-label(for="observaciones") Observaciones
+      textarea.form-control(name="observaciones" rows="3")
+
+    button.btn.btn-nuevo(type="submit") Crear Mascota
+    a.btn.btn-secondary(href="/mascotas") Cancelar
+
+
+

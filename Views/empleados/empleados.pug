@@ -1,0 +1,304 @@
+//- views/empleados/empleados.pug
+extends ../layout.pug
+
+block content
+  .container-fluid.py-4
+    .row
+      .col-12
+        .card.shadow-sm
+          .card-header(style="background-color: #762051;").text-white.d-flex.justify-content-between.align-items-center
+            .d-flex.align-items-center
+              h4.mb-0.me-2
+                i.bi.bi-person-badge-fill.me-2
+                | Gestión de Empleados
+              button.btn.btn-outline-light(
+                    type="button",
+                    id="btnAyudaEmpleados",
+                    title="Iniciar tour guiado"
+                  )
+                    i.bi.bi-question-square-fill(style="font-size: 1.5rem;")
+            button.btn.btn-success.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalCrearEmpleado")
+              i.bi.bi-person-plus-fill.me-1
+              | Nuevo Empleado
+          
+          .card-body
+            .table-responsive
+              table.table.table-hover.table-striped#tablaEmpleados
+                thead.table-dark
+                  tr
+                    th(scope="col") DNI
+                    th(scope="col") Nombre
+                    th(scope="col") Apellido
+                    th(scope="col") Teléfono
+                    th(scope="col") Rol
+                    th(scope="col") Servicios
+                    th.text-center(scope="col") Acciones
+                tbody
+                  if empleados && empleados.length
+                    each empleado in empleados
+                      tr
+                        td= empleado.dni
+                        td= empleado.name
+                        td= empleado.lastname
+                        td= empleado.phone
+                        td= empleado.role
+                        td
+                          if empleado.servicios && empleado.servicios.length
+                            span.badge.bg-info= empleado.servicios.length + ' servicios'
+                          else
+                            span.badge.bg-secondary Sin servicios
+                        td.text-center
+                          button.btn.btn-info.btn-sm.me-1(
+                            type="button" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#modalVerServicios"
+                            onclick=`verServiciosEmpleado('${empleado.name} ${empleado.lastname}', ${JSON.stringify(empleado.servicios)})`
+                          )
+                            i.bi.bi-eye
+                          button.btn.btn-warning.btn-sm.me-1(
+                            type="button" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#modalEditarEmpleado"
+                            onclick=`cargarDatosEditar('${empleado._id}', '${empleado.dni}', '${empleado.name}', '${empleado.lastname}', '${empleado.phone}', '${empleado.role}', ${JSON.stringify(empleado.servicios ? empleado.servicios.map(s => s._id) : [])})`
+                          )
+                            i.bi.bi-pencil
+                          button.btn.btn-danger.btn-sm(
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEliminarEmpleado" 
+                            onclick=`cargarDatosEliminar('${empleado._id}', '${empleado.name} ${empleado.lastname}')`
+                          )
+                            i.bi.bi-trash
+                  else
+                    tr
+                      td.text-center(colspan="7")
+                        p.text-muted.mt-3 No hay empleados registrados
+
+  // Modal Ver Servicios
+  #modalVerServicios.modal.fade(tabindex="-1")
+    .modal-dialog.modal-lg
+      .modal-content
+        .modal-header.bg-info.text-white
+          h5.modal-title
+            i.bi.bi-list-check.me-2
+            | Servicios que brinda
+          button.btn-close.btn-close-white(type="button" data-bs-dismiss="modal")
+        .modal-body
+          .text-center
+            h6#nombreEmpleadoServicios [Nombre del Empleado]
+            hr
+            #listaServiciosEmpleado
+        .modal-footer
+          button.btn.btn-info(type="button" data-bs-dismiss="modal") Cerrar
+
+  // Modal Crear Empleado
+  #modalCrearEmpleado.modal.fade(tabindex="-1")
+    .modal-dialog.modal-xl
+      .modal-content
+        .modal-header.bg-success.text-white
+          h5.modal-title
+            i.bi.bi-person-plus-fill.me-2
+            | Crear Nuevo Empleado
+          button.btn-close.btn-close-white(type="button" data-bs-dismiss="modal")
+        .modal-body
+          form(action="/empleados" method="POST")
+            .row
+              .col-md-4
+                .mb-3
+                  label.form-label(for="dni") DNI *
+                  input.form-control(type="text" name="dni" required placeholder="12.345.678")
+              .col-md-4
+                .mb-3
+                  label.form-label(for="name") Nombre *
+                  input.form-control(type="text" name="name" required placeholder="María")
+              .col-md-4
+                .mb-3
+                  label.form-label(for="lastname") Apellido *
+                  input.form-control(type="text" name="lastname" required placeholder="González")
+            .row
+              .col-md-6
+                .mb-3
+                  label.form-label(for="phone") Teléfono *
+                  input.form-control(type="tel" name="phone" required placeholder="+54 11 1234-5678")
+              .col-md-6
+                .mb-3
+                  label.form-label(for="role") Rol *
+                  select.form-select(name="role" required)
+                    option(value="") Seleccionar rol...
+                    option(value="veterinario") Veterinario
+                    option(value="atencion") Atención
+                    option(value="peluquero") Peluquero
+                    option(value="jefe") Jefe
+            
+            //- SECCIÓN SERVICIOS - CHECKBOXES DINÁMICOS
+            .mb-3
+              label.form-label.fw-bold Servicios que puede brindar
+              .form-text.mb-2 Seleccione los servicios que este empleado puede realizar
+              .row
+                if servicios && servicios.length
+                  each servicio in servicios
+                    .col-md-6.mb-2
+                      .form-check
+                        input.form-check-input(
+                          type="checkbox" 
+                          name="servicios" 
+                          value=servicio._id 
+                          id=`servicio_${servicio._id}`
+                        )
+                        label.form-check-label(for=`servicio_${servicio._id}`)
+                          = servicio.name
+                else
+                  .col-12
+                    .alert.alert-info
+                      i.bi.bi-info-circle.me-2
+                      | No hay servicios registrados en el sistema
+            
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              button.btn.btn-success(type="submit")
+                i.bi.bi-check-circle-fill.me-1
+                | Crear Empleado
+
+  // Modal Editar Empleado
+  #modalEditarEmpleado.modal.fade(tabindex="-1")
+    .modal-dialog.modal-xl
+      .modal-content
+        .modal-header.bg-warning.text-dark
+          h5.modal-title
+            i.bi.bi-pencil-square.me-2
+            | Editar Empleado
+          button.btn-close(type="button" data-bs-dismiss="modal")
+        .modal-body
+          form(id="formEditarEmpleado" method="POST")
+            .row
+              .col-md-4
+                .mb-3
+                  label.form-label(for="dni") DNI *
+                  input.form-control#editDni(type="text" name="dni" required)
+              .col-md-4
+                .mb-3
+                  label.form-label(for="name") Nombre *
+                  input.form-control#editName(type="text" name="name" required)
+              .col-md-4
+                .mb-3
+                  label.form-label(for="lastname") Apellido *
+                  input.form-control#editLastname(type="text" name="lastname" required)
+            .row
+              .col-md-6
+                .mb-3
+                  label.form-label(for="phone") Teléfono *
+                  input.form-control#editPhone(type="tel" name="phone" required)
+              .col-md-6
+                .mb-3
+                  label.form-label(for="role") Rol *
+                  select.form-select#editRole(name="role" required)
+                    option(value="") Seleccionar rol...
+                    option(value="veterinario") Veterinario
+                    option(value="atencion") Atención
+                    option(value="peluquero") Peluquero
+                    option(value="jefe") Jefe
+            
+            //- SECCIÓN SERVICIOS - CHECKBOXES DINÁMICOS PARA EDITAR
+            .mb-3
+              label.form-label.fw-bold Servicios que puede brindar
+              .form-text.mb-2 Seleccione los servicios que este empleado puede realizar
+              .row#contenedorServiciosEditar
+                if servicios && servicios.length
+                  each servicio in servicios
+                    .col-md-6.mb-2
+                      .form-check
+                        input.form-check-input(
+                          type="checkbox" 
+                          name="servicios" 
+                          value=servicio._id 
+                          id=`edit_servicio_${servicio._id}`
+                        )
+                        label.form-check-label(for=`edit_servicio_${servicio._id}`)
+                          = servicio.name
+                else
+                  .col-12
+                    .alert.alert-info
+                      i.bi.bi-info-circle.me-2
+                      | No hay servicios registrados en el sistema
+            
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              button.btn.btn-warning(type="submit")
+                i.bi.bi-check-circle-fill.me-1
+                | Guardar Cambios
+
+  // Modal Eliminar Empleado
+  #modalEliminarEmpleado.modal.fade(tabindex="-1")
+    .modal-dialog
+      .modal-content
+        .modal-header.bg-danger.text-white
+          h5.modal-title
+            i.bi.bi-exclamation-triangle-fill.me-2
+            | Eliminar Empleado
+          button.btn-close.btn-close-white(type="button" data-bs-dismiss="modal")
+        .modal-body
+          .text-center
+            i.bi.bi-person-x-fill.text-danger.mb-3(style="font-size: 3rem;")
+            h6 ¿Estás seguro de que deseas eliminar este empleado?
+            p.text-muted#empleadoAEliminar Este empleado será eliminado permanentemente.
+            .alert.alert-warning.mt-3
+              small
+                i.bi.bi-info-circle-fill.me-1
+                | Esta acción no se puede deshacer
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+          form(id="formEliminarEmpleado" method="POST" style="display: inline;")
+            button.btn.btn-danger(type="submit")
+              i.bi.bi-trash3-fill.me-1
+              | Eliminar Empleado
+
+block scripts
+  script.
+    function verServiciosEmpleado(nombreCompleto, servicios) {
+      document.getElementById('nombreEmpleadoServicios').textContent = nombreCompleto;
+      const lista = document.getElementById('listaServiciosEmpleado');
+      
+      if (servicios && servicios.length > 0) {
+        let html = '<div class="row">';
+        servicios.forEach(servicio => {
+          html += `
+            <div class="col-md-6 mb-2">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <span>${servicio.name} - $${servicio.price}</span>
+              </div>
+            </div>`;
+        });
+        html += '</div>';
+        lista.innerHTML = html;
+      } else {
+        lista.innerHTML = `
+          <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            <strong>No brinda servicios</strong><br>
+            <small>Este empleado no tiene servicios asignados</small>
+          </div>`;
+      }
+    }
+
+    function cargarDatosEditar(id, dni, name, lastname, phone, role, serviciosIds) {
+      const form = document.getElementById('formEditarEmpleado');
+      form.action = `/empleados/editar/${id}`;
+      document.getElementById('editDni').value = dni;
+      document.getElementById('editName').value = name;
+      document.getElementById('editLastname').value = lastname;
+      document.getElementById('editPhone').value = phone;
+      document.getElementById('editRole').value = role;
+      
+      // MARCAR CHECKBOXES DE SERVICIOS
+      const checkboxes = document.querySelectorAll('#contenedorServiciosEditar input[type="checkbox"]');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = serviciosIds.includes(checkbox.value);
+      });
+    }
+    
+    function cargarDatosEliminar(id, nombreCompleto) {
+      const form = document.getElementById('formEliminarEmpleado');
+      form.action = `/empleados/eliminar/${id}`;
+      document.getElementById('empleadoAEliminar').textContent = `Empleado: ${nombreCompleto}`;
+    }

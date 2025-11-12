@@ -1,0 +1,51 @@
+extends ../layout.pug
+
+block content
+  h1.text-center.mb-4 #{titulo}
+
+  //- Mostrar saldo actual
+  .card.mb-4.shadow-sm.p-3(style="background-color:#ffffff; border-left: 5px solid #762051;")
+    h4.text-center Saldo actual: 
+      span.text-success $#{saldo.toFixed(2)}
+
+  .card.mb-4.shadow-sm.p-3
+    h5.mb-3 Registrar Movimiento
+    form(action="/caja" method="POST")
+      .mb-3
+        label.form-label(for="tipo") Tipo de Movimiento
+        select.form-select(name="tipo" required)
+          option(value="") Seleccione...
+          option(value="ingreso") Ingreso
+          option(value="egreso") Egreso
+      .mb-3
+        label.form-label(for="monto") Monto
+        input.form-control(type="number" step="0.01" name="monto" required)
+      .mb-3
+        label.form-label(for="descripcion") Descripción
+        input.form-control(type="text" name="descripcion" required)
+      button.btn.btn-nuevo.mt-2(type="submit")
+        i.bi.bi-plus-circle.me-2
+        | Registrar
+
+  //- Tabla de movimientos
+  if movimientos.length
+    table.table.table-hover.table-bordered.shadow-sm
+      thead.table-dark
+        tr
+          th Fecha
+          th Tipo
+          th Monto
+          th Descripción
+      tbody
+        each m in movimientos
+          tr
+            td #{new Date(m.createdAt).toLocaleDateString('es-AR')}
+            td
+              if m.tipo === 'ingreso'
+                span.badge.bg-success.text-uppercase #{m.tipo}
+              else
+                span.badge.bg-danger.text-uppercase #{m.tipo}
+            td $#{m.monto.toFixed(2)}
+            td #{m.descripcion}
+  else
+    p.text-center.text-muted No hay movimientos registrados en caja.

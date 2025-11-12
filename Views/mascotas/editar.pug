@@ -1,0 +1,59 @@
+extends ../layout.pug
+
+block content
+  h1 #{titulo}
+
+  form(action=`/mascotas/editar/${mascota._id}` method="POST")
+
+    .mb-3
+      label.form-label Nombre
+      input.form-control(type="text" name="nombre" required value=mascota.nombre)
+
+    .mb-3
+      label.form-label Especie
+      input.form-control(type="text" name="especie" required value=mascota.especie)
+
+    .mb-3
+      label.form-label Raza
+      input.form-control(type="text" name="raza" value=mascota.raza)
+
+    .mb-3
+      label.form-label Sexo
+      select.form-select(name="sexo" required)
+        option(value="") -- Seleccione --
+        option(value="Macho" selected=mascota.sexo==="Macho") Macho
+        option(value="Hembra" selected=mascota.sexo==="Hembra") Hembra
+
+    .mb-3
+      label.form-label Edad (años)
+      input.form-control(type="number" name="edad" min="0" required value=mascota.edad)
+
+    .mb-3
+      label.form-label Peso (kg)
+      input.form-control(type="number" step="0.01" name="peso" value=mascota.peso)
+
+    .mb-3
+      label.form-label Fecha de Primera Consulta
+      input.form-control(type="date" name="fechaPrimeraConsulta" value=(mascota.fechaPrimeraConsulta ? mascota.fechaPrimeraConsulta.toISOString().slice(0,10) : ""))
+
+    .mb-3
+      label.form-label Dueño
+      select.form-select(name="cliente" required)
+        option(value="") -- Seleccione un cliente --
+        each cliente in clientes
+          option(
+            value=cliente._id 
+            selected=(mascota.cliente.equals(cliente._id))
+          ) #{cliente.nombre} #{cliente.apellido}
+
+    .mb-3
+      label.form-label Número de Chip (opcional)
+      input.form-control(type="text" name="numeroChip" value=(mascota.numeroChip || ""))
+
+    .mb-3
+      label.form-label Observaciones
+      textarea.form-control(name="observaciones" rows="3")= mascota.observaciones
+
+    button.btn.btn-nuevo(type="submit") Guardar Cambios
+    a.btn.btn-secondary(href="/mascotas") Cancelar
+

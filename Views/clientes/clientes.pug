@@ -1,0 +1,81 @@
+extends ../layout.pug
+
+block content
+  h1 #{titulo}
+
+  // Botones Nuevo Cliente e inicio
+  .d-flex.mb-3
+    a.btn.btn-nuevo.me-2(href="/clientes/nuevo")
+      i.bi.bi-plus-circle
+      |  Nuevo Cliente
+    a.btn.btn-secondary(href="/dashboard")
+      i.bi.bi-house
+      |  Inicio
+
+  table.table.table-striped.table-bordered
+    thead
+      tr
+        th DNI
+        th Nombre
+        th Apellido
+        th Email
+        th Teléfono
+        th Dirección
+        th Observaciones
+        th Mascotas
+        th Acciones
+    tbody
+      if clientes && clientes.length
+        each cliente in clientes
+          tr
+            td= cliente.dniCliente
+            td= cliente.nombre
+            td= cliente.apellido
+            td= cliente.email
+            td= cliente.telefono
+            td= cliente.direccion
+            td= cliente.observaciones
+            td
+              if cliente.mascotas && cliente.mascotas.length
+                each mascota in cliente.mascotas
+                  span.badge.bg-secondary= mascota.nombre
+              else
+                span.text-muted Sin mascotas
+            td
+              a.btn.btn-acciones.editar(href=`/clientes/editar/${cliente._id}`)
+                i.bi.bi-pencil-fill
+              a.btn.btn-acciones.eliminar.btn-eliminar(href=`/clientes/eliminar/${cliente._id}`)
+                i.bi.bi-trash-fill
+      else
+        tr
+          td(colspan="9" class="text-center") No hay clientes registrados.
+
+  // SweetAlert2
+  script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
+  script.
+    const btnsEliminar = document.querySelectorAll('.btn-eliminar');
+    btnsEliminar.forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        const href = btn.getAttribute('href');
+        Swal.fire({
+          title: '¿Estás seguro que quieres eliminar este Cliente?',
+          text: "¡Esta operación es irreversible",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: 'rgba(47, 4, 58, 1)',
+          cancelButtonColor: '#5e165aff',
+          confirmButtonText: 'Eliminar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = href;
+          }
+        });
+      });
+    });
+
+
+
+
+

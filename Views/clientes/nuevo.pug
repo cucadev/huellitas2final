@@ -1,0 +1,98 @@
+extends ../layout.pug
+
+block content
+  h1 #{titulo}
+
+  form#formCliente.needs-validation(action="/clientes/nuevo" method="POST" novalidate)
+    .mb-3
+      label.form-label(for="dniCliente") DNI del Cliente
+      input.form-control(type="text" name="dniCliente" required value=(cliente && cliente.dniCliente ? cliente.dniCliente : '') placeholder="Ej: 40234567")
+      .invalid-feedback Por favor ingresa un DNI válido.
+    .mb-3
+      label.form-label(for="nombre") Nombre
+      input.form-control(type="text" name="nombre" required value=(cliente && cliente.nombre ? cliente.nombre : '') placeholder="Ej: Juan")
+      .invalid-feedback El nombre es obligatorio.
+    .mb-3
+      label.form-label(for="apellido") Apellido
+      input.form-control(type="text" name="apellido" required value=(cliente && cliente.apellido ? cliente.apellido : '') placeholder="Ej: Pérez")
+      .invalid-feedback El apellido es obligatorio.
+    .mb-3
+      label.form-label(for="email") Email
+      input.form-control(type="email" name="email" required value=(cliente && cliente.email ? cliente.email : '') placeholder="Ej: juanperez@email.com")
+      .invalid-feedback Ingresa un email válido.
+    .mb-3
+      label.form-label(for="telefono") Teléfono
+      input.form-control(type="text" name="telefono" required value=(cliente && cliente.telefono ? cliente.telefono : '') placeholder="Ej: 3512345678")
+      .invalid-feedback El teléfono es obligatorio.
+    .mb-3
+      label.form-label(for="direccion") Dirección
+      input.form-control(type="text" name="direccion" value=(cliente && cliente.direccion ? cliente.direccion : '') placeholder="Ej: Av. Siempre Viva 742")
+    .mb-3
+      label.form-label(for="observaciones") Observaciones
+      textarea.form-control(name="observaciones" rows="3")= cliente && cliente.observaciones ? cliente.observaciones : ''
+    .mb-3
+      label.form-label(for="mascotas") Mascotas
+      select.form-select(name="mascotas" multiple)
+        each mascota in mascotas
+          option(value=mascota._id selected=(cliente && cliente.mascotas && cliente.mascotas.includes(mascota._id)))= mascota.nombre
+
+    button.btn.btn-success.m-1(type="submit") Crear Cliente
+    a.btn.btn-secondary.m-1(href="/clientes") Cancelar
+    a.btn.btn-secondary.m-1(href="/dashboard") Inicio
+
+  style.
+    .btn-success { background-color: #762051; border-color: #762051; color: #fff; }
+    .btn-success:hover { opacity: 0.85; }
+    .btn-secondary { margin-left: 10px; }
+    textarea { resize: none; }
+
+  // SweetAlert2
+  script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
+  script.
+    (() => {
+      'use strict'
+
+      // Validación de formulario
+      const forms = document.querySelectorAll('.needs-validation')
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+          form.classList.add('was-validated')
+        }, false)
+      })
+
+      // Variables de mensaje
+      const mensajeExito = "#{mensajeExito || ''}"
+      const mensajeError = "#{mensajeError || ''}"
+
+      if (mensajeExito) {
+        Swal.fire({
+          icon: 'success',
+          title: '¡El cliente se ha registrado exitosamente!',
+          text: mensajeExito,
+          confirmButtonColor: '#762051'
+        })
+      }
+      if (mensajeError) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al registrar un nuevo cliente',
+          text: mensajeError,
+          confirmButtonColor: 'rgba(39, 3, 46, 1)'
+        })
+      }
+    })()
+
+
+
+
+
+
+
+
+
+
+

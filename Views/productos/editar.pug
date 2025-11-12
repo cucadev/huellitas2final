@@ -1,0 +1,54 @@
+extends ../layout
+
+block content
+  h2.mb-4 Editar Producto
+
+  form(action=`/productos/editar/${producto._id}` method="POST")
+    .mb-2
+      label Nombre
+      input.form-control(type="text" name="nombre" value=producto.nombre required)
+
+    .mb-2
+      label Descripción
+      textarea.form-control(name="descripcion")= producto.descripcion
+
+    .mb-2
+      label Proveedor
+      input.form-control(type="text" name="proveedor" value=producto.proveedor)
+
+    .mb-2
+      label Costo unitario
+      input.form-control(type="number" step="0.01" name="costo_unitario" value=producto.costo_unitario)
+
+    .mb-2
+      label Unidad de venta
+      input.form-control(type="text" name="unidad_venta" value=producto.unidad_venta)
+
+    .mb-2
+      label Categoría
+      input.form-control(type="text" name="categoria" value=producto.categoria)
+
+    .mb-2
+      label Precio de venta
+      input.form-control(type="number" step="0.01" name="precio_venta" value=producto.precio_venta)
+
+    .mb-2
+      label Stock actual
+      input.form-control(type="number" name="stock_actual" value=producto.stock_actual)
+
+    .mb-3
+      label Stock mínimo
+      input.form-control(type="number" name="stock_minimo" value=producto.stock_minimo)
+
+    button.btn.btn-nuevo(type="submit")
+      | Guardar Cambios
+    a.btn.btn-secondary.ms-2(href="/productos")
+      | Cancelar
+
+
+
+
+
+
+
+

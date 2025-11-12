@@ -1,0 +1,66 @@
+extends ../layout.pug
+
+block content
+  .container.mt-4
+    h2.text-center.mb-4 Nuevo Producto
+
+    form(action="/productos/nuevo" method="POST")
+      .row
+        .col-md-6.mb-3
+          label.form-label Nombre
+          input.form-control(type="text" name="nombre" required)
+        .col-md-6.mb-3
+          label.form-label Proveedor
+          input.form-control(type="text" name="proveedor")
+
+        .col-md-6.mb-3
+          label.form-label Costo Unitario
+          input.form-control(type="number" step="0.01" name="costo_unitario")
+
+        .col-md-6.mb-3
+          label.form-label Unidad de Venta
+          input.form-control(type="text" name="unidad_venta")
+
+        .col-md-6.mb-3
+          label.form-label Categoría
+          input.form-control(type="text" name="categoria")
+
+        .col-md-6.mb-3
+          label.form-label Precio de Venta
+          input.form-control(type="number" step="0.01" name="precio_venta")
+
+        .col-md-6.mb-3
+          label.form-label Stock Actual
+          input.form-control(type="number" name="stock_actual")
+
+        .col-md-6.mb-3
+          label.form-label Stock Mínimo
+          input.form-control(type="number" name="stock_minimo")
+
+      button.btn.btn-success.mt-3(type="submit")
+        i.fas.fa-save.me-1
+        | Guardar Producto
+
+      a.btn.btn-secondary.mt-3.ms-2(href="/productos") 
+        i.fas.fa-arrow-left.me-1
+        | Volver
+
+  script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
+
+  if mensaje
+    script.
+      Swal.fire({
+        icon: "#{tipo}",
+        title: "#{mensaje}",
+        showConfirmButton: false,
+        timer: 2000
+      });
+
+
+
+
+
+
+
+
+

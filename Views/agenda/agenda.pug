@@ -1,0 +1,561 @@
+//- views/agenda/agenda.pug
+extends ../layout.pug
+
+block content
+  // FullCalendar CSS
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.css")
+  // Driver.js CSS
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css")
+
+  style.
+    .fc-nuevaCita-button {
+      background-color: #28a745 !important;
+      border-color: #28a745 !important;
+      color: white !important;
+      margin-left: 10px;
+    }
+    .fc-nuevaCita-button:hover {
+      background-color: #218838 !important;
+      border-color: #1e7e34 !important;
+    }
+    /* Eventos en horario (verde) */
+    .fc-event.evento-en-horario {
+      background-color: #28a745 !important;
+      border-color: #28a745 !important;
+      color: white !important;
+    }
+    /* Eventos próximos (amarillo) */
+    .fc-event.evento-proximo {
+      background-color: #ffc107 !important;
+      border-color: #ffc107 !important;
+      color: black !important;
+    }
+    /* Eventos que ya pasaron (rojo) */
+    .fc-event.evento-pasado {
+      background-color: #dc3545 !important;
+      border-color: #dc3545 !important;
+      color: white !important;
+    }
+    /* Popover más ancho para Driver.js */
+    .popover-ancho {
+      max-width: 550px !important;
+    }
+
+
+  .container-fluid.py-4
+    .row
+      .col-12
+        .card.shadow-sm
+          .card-header(style="background-color: #762051;").text-white.d-flex.justify-content-between.align-items-center
+            h4.mb-0
+              i.bi.bi-calendar-check-fill.me-2
+              | Agenda Veterinaria de Turnos
+            button.btn.btn-outline-light(
+              type="button", 
+              id="btnAyudaAgenda", 
+              title="Iniciar tour guiado"
+            )
+              i.bi.bi-question-square-fill(style="font-size: 1.5rem;")
+          .card-body
+            #calendar
+
+    // Modal para Nueva/Editar Cita
+    .modal.fade(
+      id="modalCita",
+      tabindex="-1",
+      aria-labelledby="modalCitaLabel",
+      aria-hidden="true"
+    )
+      .modal-dialog.modal-xl
+        .modal-content
+          .modal-header
+            h5.modal-title(id="modalCitaLabel")
+              i.bi.bi-calendar-plus.me-2
+              span#modalTitle Agendar Nueva Cita
+            button.btn-close(type="button", data-bs-dismiss="modal", aria-label="Close")
+          .modal-body
+            form#formCita
+              input(type="hidden", id="citaId")
+              .row
+                // Primera fila: Título, Fecha, Hora, Veterinario
+                .col-md-3
+                  .mb-3
+                    label.form-label(for="titulo") Título de la Cita
+                    input.form-control(type="text", id="titulo", required, placeholder="Ej: Consulta general")
+                .col-md-3
+                  .mb-3
+                    label.form-label(for="fecha") Fecha
+                    input.form-control(type="date", id="fecha", required)
+                .col-md-3
+                  .mb-3
+                    label.form-label(for="hora") Hora
+                    input.form-control(type="time", id="hora", min="08:00", max="19:59" required)
+                .col-md-3
+                  .mb-3
+                    label.form-label(for="veterinario") Profesional
+                    select.form-select(id="veterinario", required)
+                      option(value="") Seleccionar profesional...
+              hr.my-3
+              // Segunda fila: Datos del Cliente
+              .col-12
+                h6.text-muted.mb-3
+                  i.bi.bi-person.me-2
+                  | Datos del Cliente
+              .row
+                .col-md-3#seccionCliente
+                  .mb-3
+                    label.form-label(for="dni") DNI del Cliente
+                    .input-group
+                      input.form-control(type="text", id="dni", required, placeholder="Ingrese DNI")
+                      button.btn.btn-outline-secondary(type="button", id="btnBuscarCliente")
+                        i.bi.bi-search
+                .col-md-3
+                  .mb-3
+                    label.form-label(for="nombre") Nombre
+                    input.form-control(type="text", id="nombre", readonly)
+                .col-md-3
+                  .mb-3
+                    label.form-label(for="apellido") Apellido
+                    input.form-control(type="text", id="apellido", readonly)
+                .col-md-3
+                  .mb-3
+                    label.form-label(for="telefono") Teléfono
+                    input.form-control(type="tel", id="telefono", readonly)
+              .row
+                .col-md-6
+                  .mb-3
+                    label.form-label(for="email") Email
+                    input.form-control(type="email", id="email", readonly)
+                .col-md-6
+                  .mb-3
+                    label.form-label(for="direccion") Dirección
+                    input.form-control(type="text", id="direccion", readonly)
+              hr.my-3
+              // Tercera fila: Datos de la Mascota
+              .col-12
+                h6.text-muted.mb-3
+                  i.bi.bi-heart.me-2
+                  | Datos de la Mascota
+              .row#seccionMascota
+                .col-md-4
+                  .mb-3
+                    label.form-label(for="nombreMascota") Nombre de la Mascota
+                    input.form-control(type="text", id="nombreMascota", required, placeholder="Ej: Rocky")
+                .col-md-4
+                  .mb-3
+                    label.form-label(for="tipoMascota") Tipo de Mascota
+                    select.form-select(id="tipoMascota", required)
+                      option(value="") Seleccionar...
+                      option(value="Perro") Perro
+                      option(value="Gato") Gato
+                .col-md-12
+                  .mb-3
+                    label.form-label(for="observaciones") Motivo de la Consulta / Observaciones
+                    textarea.form-control(id="observaciones", rows="3", required, placeholder="Describa el motivo de la consulta...")
+              .modal-footer
+                button.btn.btn-danger#btnEliminarCita(type="button", style="display:none;")
+                  i.bi.bi-trash.me-1
+                  | Eliminar Cita
+                button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Cancelar
+                button.btn.btn-primary(type="submit", id="btnGuardarCita")
+                  i.bi.bi-save.me-1
+                  | Guardar Cita
+
+block scripts
+  // FullCalendar JS
+  script(src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/locales/es.global.min.js")
+  
+  script.
+    // ========================================
+    // INICIALIZACIÓN DE FULLCALENDAR
+    // ========================================
+    let calendar;
+    document.addEventListener('DOMContentLoaded', function () {
+        const calendarEl = document.getElementById('calendar');
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            // CONFIGURACIÓN BÁSICA
+            locale: 'es',
+            height: 'auto',
+            // BARRA DE HERRAMIENTAS
+            headerToolbar: {
+                left: 'prev,next nuevaCita',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            // TEXTOS DE BOTONES
+            buttonText: {
+                today: 'Hoy',
+                month: 'Mes',
+                week: 'Semana',
+                day: 'Día'
+            },
+            // BOTÓN PERSONALIZADO
+            customButtons: {
+                nuevaCita: {
+                    text: '+ Agendar Turno Nuevo',
+                    click: function () {
+                        abrirModalNuevaCita();
+                    }
+                }
+            },
+            // CONFIGURACIÓN DE HORARIOS
+            slotMinTime: '08:00:00',
+            slotMaxTime: '21:00:00',
+            slotDuration: '00:30:00',
+            allDaySlot: false,
+            // INTERACTIVIDAD
+            selectable: true,
+            editable: true,
+            eventDurationEditable: false,
+            eventResizableFromStart: false,
+            // FUENTE DE EVENTOS (API)
+            events: function (info, successCallback, failureCallback) {
+                cargarEventos(info, successCallback, failureCallback);
+            },
+            // EVENTOS DE USUARIO
+            dateClick: function (info) {
+                const fechaClick = new Date(info.dateStr + 'T00:00:00'); // Forzar hora local
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                if (fechaClick < hoy) return;
+                abrirModalNuevaCita(info.dateStr);
+            },
+            // Click en un evento existente
+            eventClick: function (info) {
+                abrirModalEditarCita(info.event);
+            },
+            // Arrastrar y soltar evento
+            eventDrop: function (info) {
+                const fechaEvento = new Date(info.event.start);
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                if (fechaEvento < hoy) {
+                    alert('No puedes mover eventos a días anteriores');
+                    info.revert();
+                    return;
+                }
+                actualizarFechaHoraEvento(info.event);
+            },
+            // FORMATO DE HORA
+            eventTimeFormat: {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            },
+            // ESTILO DE EVENTOS DINÁMICOS
+            eventClassNames: function (arg) {
+                console.log('🔵 eventClassNames EJECUTÁNDOSE', arg.event.title, arg.event.start);
+
+                const evento = arg.event;
+                const ahora = new Date();
+                const fechaEvento = new Date(evento.start);
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+
+                // Si el evento es de un día pasado
+                if (fechaEvento < hoy) {
+                    console.log('🔴 Evento PASADO');
+                    return ['evento-pasado'];}
+                // Si el evento es hoy
+                if (fechaEvento.toDateString() === ahora.toDateString()) {
+                    const diferenciaMinutos = (ahora - fechaEvento) / (1000 * 60);
+                    if (diferenciaMinutos > 0) {
+                        if (diferenciaMinutos > 3) return ['evento-pasado'];
+                        else return ['evento-proximo'];
+                    }
+                    return ['evento-en-horario'];
+                }
+                console.log('🔵 Evento FUTURO');
+                return [];
+            },
+        });
+        calendar.render();
+        // Actualizar estilos cada minuto
+        setInterval(() => calendar.refetchEvents(), 60000);
+    });
+
+    // ========================================
+    // FUNCIÓN PARA REFRESCAR EL CALENDARIO
+    // ========================================
+    function refrescarCalendario() {
+        if (calendar) calendar.refetchEvents();
+    }
+
+    // ========================================
+    // CONFIGURACIÓN API
+    // ========================================
+    const API_URL = 'http://localhost:3000/api';
+    const AGENDA_URL = `/agenda/api`;
+    const CLIENTES_URL = `/agenda/api/clientes`;
+
+    // ========================================
+    // VARIABLES GLOBALES
+    // ========================================
+    let modalCita;
+    let editandoCita = false;
+    let citaActualId = null;
+
+    // ========================================
+    // INICIALIZACIÓN
+    // ========================================
+    document.addEventListener('DOMContentLoaded', function() {
+        modalCita = new bootstrap.Modal(document.getElementById('modalCita'));
+        document.getElementById('formCita').addEventListener('submit', guardarCita);
+        document.getElementById('btnBuscarCliente').addEventListener('click', buscarCliente);
+        document.getElementById('btnEliminarCita').addEventListener('click', eliminarCita);
+        document.getElementById('modalCita').addEventListener('hidden.bs.modal', limpiarFormulario);
+    });
+
+    // ========================================
+    // CARGAR EVENTOS DESDE LA API
+    // ========================================
+    async function cargarEventos(info, successCallback, failureCallback) {
+        try {
+            const start = info.start.toISOString().split('T')[0];
+            const end = info.end.toISOString().split('T')[0];
+            const response = await fetch(`${AGENDA_URL}?start=${start}&end=${end}`);
+            if (!response.ok) throw new Error('Error al cargar eventos');
+            const eventos = await response.json();
+            successCallback(eventos);
+        } catch (error) {
+            console.error('Error al cargar eventos:', error);
+            failureCallback(error);
+            mostrarAlerta('Error al cargar las citas', 'danger');
+        }
+    }
+
+    // ========================================
+    // ABRIR MODAL PARA NUEVA CITA
+    // ========================================
+    function abrirModalNuevaCita(fecha = null) {
+        editandoCita = false;
+        citaActualId = null;
+        limpiarFormulario();
+        document.getElementById('modalTitle').textContent = 'Agendar Nueva Cita';
+        document.getElementById('btnGuardarCita').innerHTML = '<i class="bi bi-save me-1"></i> Guardar Cita';
+        document.getElementById('btnEliminarCita').style.display = 'none';
+        cargarProfesionales();
+        if (fecha) {
+            const fechaSolo = fecha.split('T')[0];
+            const hora = fecha.split('T')[1] ? fecha.split('T')[1].substring(0, 5) : '';
+            document.getElementById('fecha').value = fechaSolo;
+            if (hora) document.getElementById('hora').value = hora;
+        } else {
+            document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+        }
+        modalCita.show();
+    }
+
+    // ========================================
+    // ABRIR MODAL PARA EDITAR CITA
+    // ========================================
+    async function abrirModalEditarCita(evento) {
+        editandoCita = true;
+        citaActualId = evento.id;
+        limpiarFormulario();
+        document.getElementById('modalTitle').textContent = 'Editar Cita';
+        document.getElementById('btnGuardarCita').innerHTML = '<i class="bi bi-save me-1"></i> Actualizar Cita';
+        document.getElementById('btnEliminarCita').style.display = 'inline-block';
+
+        const props = evento.extendedProps;
+
+        // ESPERAR a que se carguen los profesionales antes de continuar
+        await cargarProfesionales();
+
+        // AHORA SÍ asignar el valor cuando las opciones ya están cargadas
+        document.getElementById('veterinario').value = props.professional;
+
+        document.getElementById('citaId').value = evento.id;
+        document.getElementById('titulo').value = evento.title;
+        document.getElementById('fecha').value = props.date;
+        document.getElementById('hora').value = props.time;
+        document.getElementById('veterinario').value = props.professional;
+        document.getElementById('dni').value = props.dni_client;
+        document.getElementById('nombre').value = props.name_client;
+        document.getElementById('apellido').value = props.lastname_client;
+        document.getElementById('telefono').value = props.phone_client;
+        document.getElementById('email').value = props.email_client;
+        document.getElementById('direccion').value = props.address_client || '';
+        document.getElementById('nombreMascota').value = props.pet_name;
+        document.getElementById('tipoMascota').value = props.pet_type;
+        document.getElementById('observaciones').value = props.observations;
+        modalCita.show();
+    }
+
+    // ========================================
+    // CARGAR EMPLEADOS POR ROL
+    // ========================================
+    async function cargarProfesionales() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const responseVeterinarios = await fetch(`/empleados/api/empleados/rol/veterinario`);
+            const responsePeluqueros = await fetch(`/empleados/api/empleados/rol/peluquero`);
+            if (!responseVeterinarios.ok || !responsePeluqueros.ok) throw new Error('Error al cargar profesionales');
+            
+            const veterinarios = await responseVeterinarios.json();
+            const peluqueros = await responsePeluqueros.json();
+            const profesionales = [...veterinarios, ...peluqueros];
+            
+            const selectProfesional = document.getElementById('veterinario');
+            selectProfesional.innerHTML = '<option value="">Seleccionar profesional...</option>';
+            
+            profesionales.forEach(profesional => {
+                const option = document.createElement('option');
+                option.value = `${profesional.name} ${profesional.lastname}`;
+                option.textContent = `${profesional.name} ${profesional.lastname} (${profesional.role})`;
+                selectProfesional.appendChild(option);
+            });
+            
+            resolve(); // ← ESTA LÍNEA NUEVA ES IMPORTANTE
+        } catch (error) {
+            console.error('Error al cargar profesionales:', error);
+            mostrarAlerta('Error al cargar profesionales', 'danger');
+            reject(error);
+        }
+    });
+    }
+
+    // ========================================
+    // BUSCAR CLIENTE POR DNI
+    // ========================================
+    async function buscarCliente() {
+        const dni = document.getElementById('dni').value.trim();
+        if (!dni) {
+            mostrarAlerta('Por favor, ingrese un DNI', 'warning');
+            return;
+        }
+        try {
+            const response = await fetch(`/agenda/api/clientes/busqueda/${dni}`);
+            if (!response.ok) {
+                if (response.status === 404) {
+                    mostrarAlerta('Cliente no encontrado con ese DNI', 'warning');
+                    limpiarCamposCliente();
+                    return;
+                }
+                throw new Error('Error al buscar cliente');
+            }
+            const cliente = await response.json();
+            document.getElementById('nombre').value = cliente.nombre || '';
+            document.getElementById('apellido').value = cliente.apellido || '';
+            document.getElementById('telefono').value = cliente.telefono || '';
+            document.getElementById('email').value = cliente.email || '';
+            document.getElementById('direccion').value = cliente.direccion || '';
+            mostrarAlerta('Cliente encontrado correctamente', 'success');
+        } catch (error) {
+            console.error('Error al buscar cliente:', error);
+            mostrarAlerta('Error al buscar el cliente', 'danger');
+        }
+    }
+
+    // ========================================
+    // GUARDAR CITA (CREAR O ACTUALIZAR)
+    // ========================================
+    async function guardarCita(e) {
+        e.preventDefault();
+        const datos = {
+            title: document.getElementById('titulo').value.trim(),
+            date: document.getElementById('fecha').value,
+            time: document.getElementById('hora').value,
+            professional: document.getElementById('veterinario').value,
+            dni_client: document.getElementById('dni').value.trim(),
+            pet_name: document.getElementById('nombreMascota').value.trim(),
+            pet_type: document.getElementById('tipoMascota').value,
+            observations: document.getElementById('observaciones').value.trim()
+        };
+        try {
+            let response;
+            if (editandoCita && citaActualId) {
+                response = await fetch(`${AGENDA_URL}/${citaActualId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+            } else {
+                response = await fetch(AGENDA_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+            }
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Error al guardar la cita');
+            }
+            const resultado = await response.json();
+            modalCita.hide();
+            refrescarCalendario();
+            const mensaje = editandoCita ? 'Cita actualizada correctamente' : 'Cita creada correctamente';
+            mostrarAlerta(mensaje, 'success');
+        } catch (error) {
+            console.error('Error al guardar cita:', error);
+            mostrarAlerta(error.message || 'Error al guardar la cita', 'danger');
+        }
+    }
+
+    // ========================================
+    // ELIMINAR CITA
+    // ========================================
+    async function eliminarCita() {
+        if (!citaActualId) return;
+        if (!confirm('¿Está seguro de que desea eliminar esta cita?')) return;
+        try {
+            const response = await fetch(`${AGENDA_URL}/${citaActualId}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Error al eliminar la cita');
+            modalCita.hide();
+            refrescarCalendario();
+            mostrarAlerta('Cita eliminada correctamente', 'success');
+        } catch (error) {
+            console.error('Error al eliminar cita:', error);
+            mostrarAlerta('Error al eliminar la cita', 'danger');
+        }
+    }
+
+    // ========================================
+    // ACTUALIZAR FECHA/HORA AL ARRASTRAR EVENTO
+    // ========================================
+    async function actualizarFechaHoraEvento(evento) {
+        try {
+            const nuevaFecha = evento.start.toISOString().split('T')[0];
+            const nuevaHora = evento.start.toTimeString().substring(0, 5);
+            const response = await fetch(`${AGENDA_URL}/${evento.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ date: nuevaFecha, time: nuevaHora })
+            });
+            if (!response.ok) throw new Error('Error al actualizar la cita');
+            evento.setExtendedProp('date', nuevaFecha);
+            evento.setExtendedProp('time', nuevaHora);
+            calendar.refetchEvents();
+            mostrarAlerta('Cita reagendada correctamente', 'success');
+        } catch (error) {
+            console.error('Error al actualizar fecha/hora:', error);
+            mostrarAlerta('Error al reagendar la cita', 'danger');
+            evento.revert();
+        }
+    }
+
+    // ========================================
+    // UTILIDADES
+    // ========================================
+    function limpiarFormulario() {
+        document.getElementById('formCita').reset();
+        document.getElementById('citaId').value = '';
+        limpiarCamposCliente();
+    }
+    function limpiarCamposCliente() {
+        document.getElementById('nombre').value = '';
+        document.getElementById('apellido').value = '';
+        document.getElementById('telefono').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('direccion').value = '';
+    }
+    function mostrarAlerta(mensaje, tipo = 'info') {
+        const alertaDiv = document.createElement('div');
+        alertaDiv.className = `alert alert-${tipo} alert-dismissible fade show position-fixed`;
+        alertaDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alertaDiv.setAttribute('role', 'alert');
+        alertaDiv.innerHTML = `${mensaje}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+        document.body.appendChild(alertaDiv);
+        setTimeout(() => alertaDiv.remove(), 4000);
+    }

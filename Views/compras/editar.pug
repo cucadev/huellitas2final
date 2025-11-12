@@ -1,0 +1,51 @@
+extends ../layout
+
+block content
+  h1.text-center.mb-4 Editar Compra
+
+  form(method="POST", action=`/compras/editar/${compra._id}`)
+    .mb-3
+      label.form-label(for="producto") Producto
+      select.form-control(name="producto", required)
+        each producto in productos
+          option(
+            value=producto._id 
+            selected=compra.producto._id.toString() === producto._id.toString()
+          )= producto.nombre
+
+    .mb-3
+      label.form-label(for="cantidad") Cantidad
+      input.form-control(
+        type="number",
+        name="cantidad",
+        value=compra.cantidad,
+        required
+      )
+
+    .mb-3
+      label.form-label(for="precioUnitario") Precio Unitario
+      input.form-control(
+        type="number",
+        step="0.01",
+        name="precioUnitario",
+        value=compra.precioUnitario,
+        required
+      )
+
+    .mb-3
+      label.form-label(for="proveedor") Proveedor
+      input.form-control(
+        type="text",
+        name="proveedor",
+        value=compra.proveedor,
+        required
+      )
+
+    .mt-3
+      button.btn.btn-nuevo(type="submit")
+        i.bi.bi-save
+        |  Guardar Cambios
+      a.btn.btn-secondary.ms-2(href="/compras")
+        i.bi.bi-arrow-left
+        |  Volver
+

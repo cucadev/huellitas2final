@@ -1,0 +1,161 @@
+//- views/servicios/servicios.pug
+extends ../layout.pug
+
+block content
+  .container-fluid.py-4
+    .row
+      .col-12
+        .card.shadow-sm
+          .card-header(style="background-color: #762051;").text-white.d-flex.justify-content-between.align-items-center
+            .d-flex.align-items-center
+              h4.mb-0.me-2
+                i.bi.bi-heart-pulse-fill.me-2
+                | Gestión de Servicios Veterinarios
+              button.btn.btn-outline-light(
+                  type="button",
+                  id="btnAyudaServicios",
+                  title="Iniciar tour guiado"
+                )
+                  i.bi.bi-question-square-fill(style="font-size: 1.5rem;")
+            button.btn.btn-success.btn-sm(type="button" data-bs-toggle="modal" data-bs-target="#modalCrearServicio")
+              i.bi.bi-plus.me-1
+              | Nuevo Servicio
+          
+          .card-body
+            .table-responsive
+              table.table.table-hover.table-striped#tablaServicios
+                thead.table-dark
+                  tr
+                    th(scope="col") Nombre del Servicio
+                    th(scope="col") Descripción
+                    th(scope="col") Precio
+                    th.text-center(scope="col") Acciones
+                tbody
+                  if servicios && servicios.length
+                    each servicio in servicios
+                      tr
+                        td= servicio.name
+                        td= servicio.description
+                        td= `$${servicio.price.toFixed(2)}`
+                        td.text-center
+                          button.btn.btn-warning.btn-sm.me-1(
+                            type="button" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#modalEditarServicio"
+                            onclick=`cargarDatosEditar('${servicio._id}', '${servicio.name}', '${servicio.description}', ${servicio.price})`
+                          )
+                            i.bi.bi-pencil
+                          button.btn.btn-danger.btn-sm(
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEliminarServicio" 
+                            onclick=`cargarDatosEliminar('${servicio._id}', '${servicio.name}')`
+                          )
+                            i.bi.bi-trash
+                  else
+                    tr
+                      td.text-center(colspan="4")
+                        p.text-muted.mt-3 No hay servicios registrados
+
+  // Modal Crear Servicio
+  #modalCrearServicio.modal.fade(tabindex="-1")
+    .modal-dialog.modal-lg
+      .modal-content
+        .modal-header.bg-success.text-white
+          h5.modal-title
+            i.bi.bi-plus-circle.me-2
+            | Crear Nuevo Servicio
+          button.btn-close.btn-close-white(type="button" data-bs-dismiss="modal")
+        .modal-body
+          form(action="/servicios" method="POST")
+            .row
+              .col-md-6
+                .mb-3
+                  label.form-label(for="name") Nombre del Servicio *
+                  input.form-control(type="text" name="name" required placeholder="Ej: Consulta General")
+              .col-md-6
+                .mb-3
+                  label.form-label(for="price") Precio *
+                  .input-group
+                    span.input-group-text $
+                    input.form-control(type="number" name="price" step="0.01" min="0" required placeholder="0.00")
+            .mb-3
+              label.form-label(for="description") Descripción *
+              textarea.form-control(name="description" rows="3" required placeholder="Descripción detallada del servicio...")
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              button.btn.btn-success(type="submit")
+                i.bi.bi-save.me-1
+                | Crear Servicio
+
+  // Modal Editar Servicio
+  #modalEditarServicio.modal.fade(tabindex="-1")
+    .modal-dialog.modal-lg
+      .modal-content
+        .modal-header.bg-warning.text-dark
+          h5.modal-title
+            i.bi.bi-pencil.me-2
+            | Editar Servicio
+          button.btn-close(type="button" data-bs-dismiss="modal")
+        .modal-body
+          form(id="formEditarServicio" method="POST")
+            .row
+              .col-md-6
+                .mb-3
+                  label.form-label(for="name") Nombre del Servicio *
+                  input.form-control#editName(type="text" name="name" required)
+              .col-md-6
+                .mb-3
+                  label.form-label(for="price") Precio *
+                  .input-group
+                    span.input-group-text $
+                    input.form-control#editPrice(type="number" name="price" step="0.01" min="0" required)
+            .mb-3
+              label.form-label(for="description") Descripción *
+              textarea.form-control#editDescription(name="description" rows="3" required)
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              button.btn.btn-warning(type="submit")
+                i.bi.bi-save.me-1
+                | Guardar Cambios
+
+  // Modal Eliminar Servicio
+  #modalEliminarServicio.modal.fade(tabindex="-1")
+    .modal-dialog
+      .modal-content
+        .modal-header.bg-danger.text-white
+          h5.modal-title
+            i.bi.bi-exclamation-triangle.me-2
+            | Eliminar Servicio
+          button.btn-close.btn-close-white(type="button" data-bs-dismiss="modal")
+        .modal-body
+          .text-center
+            i.bi.bi-trash.text-danger.mb-3(style="font-size: 3rem;")
+            h6 ¿Estás seguro de que deseas eliminar este servicio?
+            p.text-muted#servicioAEliminar Este servicio será eliminado permanentemente.
+            .alert.alert-warning.mt-3
+              small
+                i.bi.bi-info-circle.me-1
+                | Esta acción no se puede deshacer
+        .modal-footer
+          button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+          form(id="formEliminarServicio" method="POST" style="display: inline;")
+            button.btn.btn-danger(type="submit")
+              i.bi.bi-trash.me-1
+              | Eliminar Servicio
+
+block scripts
+  script.
+    function cargarDatosEditar(id, name, description, price) {
+      const form = document.getElementById('formEditarServicio');
+      form.action = `/servicios/editar/${id}`;
+      document.getElementById('editName').value = name;
+      document.getElementById('editPrice').value = price;
+      document.getElementById('editDescription').value = description;
+    }
+    
+    function cargarDatosEliminar(id, name) {
+      const form = document.getElementById('formEliminarServicio');
+      form.action = `/servicios/eliminar/${id}`;
+      document.getElementById('servicioAEliminar').textContent = `Servicio: ${name}`;
+    }

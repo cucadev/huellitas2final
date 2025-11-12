@@ -1,0 +1,63 @@
+doctype html
+html(lang="es")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Huellitas Felices - Pet Shop Integral
+
+    // Fuente Poppins
+    link(rel="preconnect" href="https://fonts.googleapis.com")
+    link(rel="preconnect" href="https://fonts.gstatic.com" crossorigin)
+    link(href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet")
+    
+    // Bootstrap CSS
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet")
+
+    style.
+      body {
+        font-family: 'Poppins', sans-serif;
+      }     
+
+      .banner {
+        background-image: url('/images/index-img.png'); 
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+        color: #F0EDE7;
+        text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+      }
+      a.btn-custom {
+        background-color: #9A4475;
+        color: #fff;
+      }
+      a.btn-custom:hover {
+        background-color: #762051;
+
+      }
+      footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #2B031A;
+        color: #FFF;
+        padding: 10px;
+        text-align: center;
+        z-index: 10; 
+      }
+
+  body
+    main
+      .banner.d-flex.flex-column.justify-content-center.align-items-center.text-center
+        
+        //h1.display-3 ¡BIENVENIDO!
+        //p.lead.mb-4 Accedé con tu usuario y contraseña y comenzá la gestión...
+        a.btn.btn-custom.btn-lg(href="/login") Iniciar Sesión
+
+    footer.py-3.mt-auto
+      .container
+        p.mb-0 Huellitas Felices - Todos los derechos reservados &copy; 2025
+
+    // Bootstrap JS
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js")
+
