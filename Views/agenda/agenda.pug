@@ -89,7 +89,13 @@ block content
                 .col-md-3
                   .mb-3
                     label.form-label(for="hora") Hora
-                    input.form-control(type="time", id="hora", min="08:00", max="19:59" required)
+                    select.form-select(id="hora", required)
+                      option(value="") Seleccionar hora...
+                      - for(let h = 8; h < 20; h++)
+                        - for(let m = 0; m < 60; m += 15)
+                          - const horaStr = h.toString().padStart(2, '0')
+                          - const minutoStr = m.toString().padStart(2, '0')
+                          option(value=`${horaStr}:${minutoStr}`) #{horaStr}:#{minutoStr}
                 .col-md-3
                   .mb-3
                     label.form-label(for="veterinario") Profesional
@@ -169,7 +175,7 @@ block scripts
   script.
     // ========================================
     // INICIALIZACIÓN DE FULLCALENDAR
-    // ==========================================
+    // ========================================
     let calendar;
     document.addEventListener('DOMContentLoaded', function () {
         const calendarEl = document.getElementById('calendar');
@@ -559,3 +565,7 @@ block scripts
         document.body.appendChild(alertaDiv);
         setTimeout(() => alertaDiv.remove(), 4000);
     }
+
+  //DRIVER JS
+  script(src="https://cdn.jsdelivr.net/npm/driver.js@latest/dist/driver.js.iife.js")
+  script(src="/js/agendaDriver.js")
