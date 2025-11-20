@@ -38,7 +38,7 @@ mongoose.connection.on('connected', () => {
 
 // Configuración de Express
 app.set('view engine', 'pug');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'Views'));
 
 app.use(express.static(path.join(__dirname, 'Public')));
 app.use(express.json());
