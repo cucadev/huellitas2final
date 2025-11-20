@@ -25,7 +25,7 @@ const serviciosRoutes = require('./Backend/routes/servicioRoutes');
 const empleadosRoutes = require('./Backend/routes/empleadoRoutes');
 const agendaRoutes = require('./Backend/routes/agendaRoutes');
 
-// Conexión a MongoDB
+// Conexión a MongoDB  
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
