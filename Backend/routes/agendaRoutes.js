@@ -13,13 +13,13 @@ router.put('/api/:id', agendaController.updateAgenda);    // ACTUALIZAR UNA CITA
 router.delete('/api/:id', agendaController.deleteAgenda); // ELIMINAR UNA CITA POR ID
 
 // ========================================
-// BUSCAR CLIENTE POR DNI (PARA AGENDA) - CORREGIDO
+// BUSCAR CLIENTE POR DNI (PARA AGENDA)
 // ========================================
 router.get('/api/clientes/busqueda/:dni', async (req, res) => {
   try {
     const { dni } = req.params;
     
-    console.log('🎯 BÚSQUEDA DESDE AGENDA - DNI:', dni);
+    //console.log('BÚSQUEDA DESDE AGENDA - DNI:', dni);
 
     // BUSCAR EN AMBOS CAMPOS
     const cliente = await Cliente.findOne({ dniCliente: dni }) || 
