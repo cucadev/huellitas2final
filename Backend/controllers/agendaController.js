@@ -65,49 +65,6 @@ exports.createAgenda = async (req, res) => {
   try {
     const { dni_client, date, time, professional, ...otherData } = req.body;
 
-    console.log('🎯 INICIANDO CREATE AGENDA ==================');
-    console.log('🔍 DNI recibido:', dni_client);
-    console.log('🏢 Entorno:', process.env.NODE_ENV);
-
-    // DEBUG: Verificar el modelo Cliente
-    console.log('🔍 INSPECCIONANDO MODELO CLIENTE:');
-    console.log('- Campos del esquema:', Object.keys(Cliente.schema.paths));
-
-    // BUSCAR EL CLIENTE EN TODOS LOS CAMPOS POSIBLES
-    console.log('🔎 BUSCANDO CLIENTE EN TODOS LOS CAMPOS:');
-    
-    const busquedas = {
-      por_dniCliente: await Cliente.findOne({ dniCliente: dni_client }),
-      por_dni: await Cliente.findOne({ dni: dni_client }),
-      totalClientes: await Cliente.countDocuments(),
-      algunosClientes: await Cliente.find({}, 'dniCliente dni nombre apellido').limit(5)
-    };
-
-    console.log('📊 RESULTADOS BÚSQUEDA:', busquedas);
-
-    // USAR EL CLIENTE ENCONTRADO EN CUALQUIER CAMPO
-    let cliente = busquedas.por_dniCliente || busquedas.por_dni;
-
-    if (!cliente) {
-      console.log('❌ CLIENTE NO ENCONTRADO EN NINGÚN CAMPO');
-      return res.status(404).json({ 
-        message: "NO se encontró ningún cliente con el DNI proporcionado.",
-        debug: {
-          dniBuscado: dni_client,
-          camposDisponibles: Object.keys(Cliente.schema.paths),
-          algunosClientes: busquedas.algunosClientes
-        }
-      });
-    }
-
-    console.log('✅ CLIENTE ENCONTRADO:', {
-      id: cliente._id,
-      dniCliente: cliente.dniCliente,
-      dni: cliente.dni,
-      nombre: cliente.nombre,
-      apellido: cliente.apellido
-    });
-
     // VALIDACION DE DISPONIBILIDAD DEL VETERINARIO
     const citaExistente = await Agenda.findOne({
       date: new Date(date),
@@ -119,6 +76,14 @@ exports.createAgenda = async (req, res) => {
       return res.status(400).json({
         message: `El veterinario ${professional} ya tiene una cita agendada a las ${time} del ${date}.`
       });
+    }
+
+    // BUSCAR EL CLIENTE POR DNI (EN AMBOS CAMPOS POSIBLES)
+    const cliente = await Cliente.findOne({ dniCliente: dni_client }) || 
+                   await Cliente.findOne({ dni: dni_client });
+    
+    if (!cliente) {
+      return res.status(404).json({ message: "NO se encontró ningún cliente con el DNI proporcionado." });
     }
 
     // CREAR LA CITA CON LA REFERENCIA AL CLIENTE
@@ -169,7 +134,6 @@ exports.createAgenda = async (req, res) => {
     
     res.status(201).json(eventFormatted);
   } catch (error) {
-    console.error('💥 ERROR COMPLETO EN CREATE AGENDA:', error);
     res.status(500).json({ message: error.message });
   }
 };
