@@ -13,16 +13,28 @@ router.put('/api/:id', agendaController.updateAgenda);    // ACTUALIZAR UNA CITA
 router.delete('/api/:id', agendaController.deleteAgenda); // ELIMINAR UNA CITA POR ID
 
 // ========================================
-// BUSCAR CLIENTE POR DNI (PARA AGENDA)
+// BUSCAR CLIENTE POR DNI (PARA AGENDA) - CORREGIDO
 // ========================================
 router.get('/api/clientes/busqueda/:dni', async (req, res) => {
   try {
-    const cliente = await Cliente.findOne({ dni: req.params.dni });
+    const { dni } = req.params;
+    
+    console.log('🎯 BÚSQUEDA DESDE AGENDA - DNI:', dni);
+
+    // BUSCAR EN AMBOS CAMPOS
+    const cliente = await Cliente.findOne({ dniCliente: dni }) || 
+                   await Cliente.findOne({ dni: dni });
+
     if (!cliente) {
-      return res.status(404).json({ message: "Cliente no encontrado" });
+      return res.status(404).json({ 
+        message: "Cliente no encontrado con ese DNI",
+        dniBuscado: dni
+      });
     }
+
     res.json(cliente);
   } catch (error) {
+    console.error('❌ ERROR en ruta agenda:', error);
     res.status(500).json({ message: error.message });
   }
 });
