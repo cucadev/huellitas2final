@@ -4,14 +4,14 @@ const Producto = require('../models/Producto');
 // Mostrar listado de compras
 exports.vistaCompras = async (req, res) => {
   try {
-    const compras = await Compra.find().populate('producto');
+    const compras = await Compra.find().populate('producto').sort({ createdAt: -1 });
     res.render('compras/compras', { titulo: 'Compras', compras });
   } catch (error) {
     res.status(500).send('Error al cargar las compras: ' + error.message);
   }
 };
 
-// Mostrar formulario para nueva compra
+// Formulario nueva compra
 exports.formularioNuevaCompra = async (req, res) => {
   try {
     const productos = await Producto.find();
@@ -21,7 +21,7 @@ exports.formularioNuevaCompra = async (req, res) => {
   }
 };
 
-// Guardar nueva compra
+// Crear nueva compra
 exports.crearCompra = async (req, res) => {
   try {
     const { producto, cantidad, precioUnitario, proveedor } = req.body;
@@ -32,13 +32,36 @@ exports.crearCompra = async (req, res) => {
     // Actualizar stock del producto
     const prod = await Producto.findById(producto);
     if (prod) {
-      prod.stock += parseInt(cantidad);
+      prod.stock_actual += parseInt(cantidad);
       await prod.save();
     }
 
     res.redirect('/compras');
   } catch (error) {
     res.status(400).send('Error al registrar la compra: ' + error.message);
+  }
+};
+
+// Formulario para editar compra
+exports.formularioEditarCompra = async (req, res) => {
+  try {
+    const compra = await Compra.findById(req.params.id).populate('producto');
+    if (!compra) return res.status(404).send('Compra no encontrada');
+    const productos = await Producto.find();
+    res.render('compras/editar', { titulo: 'Editar Compra', compra, productos });
+  } catch (error) {
+    res.status(500).send('Error al cargar la compra: ' + error.message);
+  }
+};
+
+// Guardar cambios de la compra
+exports.editarCompra = async (req, res) => {
+  try {
+    const { producto, cantidad, precioUnitario, proveedor } = req.body;
+    await Compra.findByIdAndUpdate(req.params.id, { producto, cantidad, precioUnitario, proveedor });
+    res.redirect('/compras');
+  } catch (error) {
+    res.status(400).send('Error al actualizar la compra: ' + error.message);
   }
 };
 
@@ -51,3 +74,4 @@ exports.eliminarCompra = async (req, res) => {
     res.status(500).send('Error al eliminar la compra: ' + error.message);
   }
 };
+

@@ -10,7 +10,7 @@ router.get('/nuevo', productoController.formNuevoProducto);
 router.post('/nuevo', productoController.createProducto);
 
 // Editar producto
-router.get('/editar/:id', productoController.formNuevoProducto);
+router.get('/editar/:id', productoController.formNuevoProducto); 
 
 // Eliminar producto 
 router.delete('/eliminar/:id', productoController.deleteProducto);

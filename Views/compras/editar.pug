@@ -1,25 +1,25 @@
 extends ../layout
 
 block content
-  h1.text-center.mb-4 Editar Compra
+  h2.text-center.mb-4 Editar Compra
 
-  form(method="POST", action=`/compras/editar/${compra._id}`)
+  form(method="POST" action=`/compras/editar/${compra._id}` class="mx-auto" style="max-width: 600px;")
     .mb-3
       label.form-label(for="producto") Producto
-      select.form-control(name="producto", required)
+      select.form-select(name="producto" id="producto" required)
         each producto in productos
-          option(
-            value=producto._id 
-            selected=compra.producto._id.toString() === producto._id.toString()
-          )= producto.nombre
+          - const selected = compra.producto && compra.producto._id.toString() === producto._id.toString();
+          option(value=producto._id selected=selected)= `${producto.productoId} - ${producto.nombre}`
 
     .mb-3
       label.form-label(for="cantidad") Cantidad
       input.form-control(
         type="number",
         name="cantidad",
+        id="cantidad",
         value=compra.cantidad,
-        required
+        required,
+        min="1"
       )
 
     .mb-3
@@ -28,9 +28,14 @@ block content
         type="number",
         step="0.01",
         name="precioUnitario",
+        id="precioUnitario",
         value=compra.precioUnitario,
         required
       )
+
+    .mb-3
+      label.form-label(for="precioTotal") Precio Total
+      input.form-control(type="number" step="0.01" id="precioTotal" readonly value=(compra.cantidad * compra.precioUnitario).toFixed(2))
 
     .mb-3
       label.form-label(for="proveedor") Proveedor
@@ -41,11 +46,24 @@ block content
         required
       )
 
-    .mt-3
-      button.btn.btn-nuevo(type="submit")
-        i.bi.bi-save
-        |  Guardar Cambios
-      a.btn.btn-secondary.ms-2(href="/compras")
-        i.bi.bi-arrow-left
-        |  Volver
+    .d-flex.justify-content-between.mt-4
+      a.btn.btn-secondary(href="/compras") Cancelar
+      button.btn.btn-nuevo(type="submit") Guardar Cambios
+
+block scripts
+  script.
+    const cantidadInput = document.getElementById('cantidad');
+    const precioUnitarioInput = document.getElementById('precioUnitario');
+    const precioTotalInput = document.getElementById('precioTotal');
+
+    function actualizarTotal() {
+      const cantidad = parseFloat(cantidadInput.value) || 0;
+      const precio = parseFloat(precioUnitarioInput.value) || 0;
+      precioTotalInput.value = (cantidad * precio).toFixed(2);
+    }
+
+    cantidadInput.addEventListener('input', actualizarTotal);
+    precioUnitarioInput.addEventListener('input', actualizarTotal);
+
+
 

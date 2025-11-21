@@ -1,37 +1,71 @@
 extends ../layout
 
 block content
-  .d-flex.justify-content-between.align-items-center.mb-4
-    h2 Listado de Compras
-    a.btn.btn-nuevo(href="/compras/nuevo")
-      i.bi.bi-plus-lg
-      | Nueva Compra
+  h2.mb-4 Listado de Compras
 
-  if compras.length
+  // Botones Nueva Compra e Inicio
+  .d-flex.mb-3
+    a.btn.btn-nuevo.me-2(href="/compras/nuevo")
+      i.bi.bi-plus-circle
+      |  Nueva Compra
+    a.btn.btn-secondary(href="/dashboard")
+      i.bi.bi-house
+      |  Inicio
+
+  if compras && compras.length
     table.table.table-striped.table-bordered
       thead
         tr
-          th Producto
+          th Fecha
+          th Código Producto
+          th Nombre Producto
           th Cantidad
           th Precio Unitario
+          th Precio Total
           th Proveedor
-          th Fecha
           th Acciones
       tbody
         each compra in compras
           tr
-            //- Protegemos compra.producto en caso de que sea null
+            td= compra.createdAt.toLocaleDateString('es-ES')
+            td= compra.producto ? compra.producto.productoId : 'Sin producto'
             td= compra.producto ? compra.producto.nombre : 'Sin producto'
             td= compra.cantidad
-            td $#{compra.precioUnitario.toFixed(2)}
+            td= `$${compra.precioUnitario.toFixed(2)}`
+            td= `$${(compra.cantidad * compra.precioUnitario).toFixed(2)}`
             td= compra.proveedor
-            td= compra.createdAt.toLocaleDateString()
             td
-              a.btn.btn-acciones.editar(href=`/compras/editar/${compra._id}`)
+              a.btn.btn-acciones.editar(href=`/compras/editar/${compra._id}` style="margin-right:6px;")
                 i.bi.bi-pencil-fill
-              a.btn.btn-acciones.eliminar.ms-2(href=`/compras/eliminar/${compra._id}`)
+              button.btn.btn-acciones.eliminar.btn-eliminar(data-id=compra._id)
                 i.bi.bi-trash-fill
   else
     p.text-center.mt-4 No hay compras registradas.
+
+block scripts
+  script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
+  script.
+    document.querySelectorAll(".btn-eliminar").forEach(btn => {
+      btn.addEventListener("click", function () {
+        const id = this.getAttribute("data-id");
+
+        Swal.fire({
+          title: "¿Eliminar Compra?",
+          text: "Esta acción no se puede deshacer",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#9A4475",
+          cancelButtonColor: "#E49AC3",
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = `/compras/eliminar/${id}`;
+          }
+        });
+      });
+    });
+
+
 
 
