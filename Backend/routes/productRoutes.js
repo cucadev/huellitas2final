@@ -9,13 +9,15 @@ router.get('/', productoController.getProductos);
 router.get('/nuevo', productoController.formNuevoProducto);
 router.post('/nuevo', productoController.createProducto);
 
-// Editar
+// Editar producto
 router.get('/editar/:id', productoController.formNuevoProducto);
 
-// Eliminar
+// Eliminar producto 
 router.delete('/eliminar/:id', productoController.deleteProducto);
 
 module.exports = router;
+
+
 
 
 

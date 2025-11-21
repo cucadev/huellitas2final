@@ -18,11 +18,7 @@ exports.formNuevoProducto = (req, res) => {
 // Crear nuevo producto
 exports.createProducto = async (req, res) => {
   try {
-    const count = await Producto.countDocuments();
-    const nuevoId = "P" + (count + 1).toString().padStart(4, "0");
-
     const nuevoProducto = new Producto({
-      codigo: nuevoId,
       ...req.body
     });
 
@@ -42,4 +38,5 @@ exports.deleteProducto = async (req, res) => {
     res.json({ success: false, message: "Error al eliminar el producto" });
   }
 };
+
 

@@ -3,14 +3,20 @@ extends ../layout.pug
 block content
   h2.mb-4 Listado de Mascotas
 
-  // Botones Nueva Mascota e Inicio
+  // Botones Nueva Mascota, nuevo cliente e Inicio
   .d-flex.mb-3
     a.btn.btn-nuevo.me-2(href="/mascotas/nuevo")
       i.bi.bi-plus-circle
       |  Nueva Mascota
+
+    a.btn.btn-nuevo.me-2(href="/clientes/nuevo")
+      i.bi.bi-person-plus-fill
+      |  Nuevo Cliente
+
     a.btn.btn-secondary(href="/dashboard")
       i.bi.bi-house
       |  Inicio
+
 
   if mascotas && mascotas.length
     table.table.table-striped.table-bordered

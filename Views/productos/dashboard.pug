@@ -29,20 +29,21 @@ block content
       tbody
         each p in productos
           tr
-            td= p.codigo
+            td= p.productoId
             td= p.nombre
             td= p.proveedor
-            td $#{(p.costo_unitario ? p.costo_unitario.toFixed(2) : "0.00")}
+            td= `$${p.costo_unitario ? p.costo_unitario.toFixed(2) : "0.00"}`
             td= p.unidad_venta
             td= p.categoria
-            td $#{(p.precio_venta ? p.precio_venta.toFixed(2) : "0.00")}
+            td= `$${p.precio_venta ? p.precio_venta.toFixed(2) : "0.00"}`
             td= p.stock_actual
             td= p.stock_minimo
             td
-              a.btn.btn-acciones.editar(href=`/productos/editar/${p._id}`)
+              a.btn.btn-acciones.editar(href=`/productos/editar/${p._id}` style="margin-right:6px;")
                 i.bi.bi-pencil-fill
               button.btn.btn-acciones.eliminar.btn-eliminar(data-id=p._id)
                 i.bi.bi-trash-fill
+
   else
     p.text-center.mt-4 No hay productos registrados.
 
@@ -55,7 +56,31 @@ block scripts
 
         Swal.fire({
           title: "¿Eliminar Producto?",
-          text: "Esta acción no se
+          text: "Esta acción no se puede deshacer",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#9A4475",
+          cancelButtonColor: "#E49AC3",
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch(`/productos/eliminar/${id}`, { method: 'DELETE' })
+              .then(res => res.json())
+              .then(data => {
+                if (data.success) {
+                  Swal.fire('Eliminado', data.message, 'success').then(() => location.reload());
+                } else {
+                  Swal.fire('Error', data.message, 'error');
+                }
+              });
+          }
+        });
+      });
+    });
+
+
+
 
 
 
