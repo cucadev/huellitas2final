@@ -80,16 +80,47 @@ html(lang="es")
         opacity: 0.85;
       }
 
+      .btn-acciones {
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: none;
+        font-size: 14px;
+      }
+
+      .btn-acciones.editar {
+        background-color: #E49AC3;
+      }
+
+      .btn-acciones.eliminar {
+        background-color: #9A4475;
+      }
+
+      .btn-acciones:hover {
+        opacity: 0.85;
+      }
+
+      td.acciones-cell {
+        display: flex !important;
+        gap: 6px !important;
+        justify-content: center;
+        align-items: center;
+      }
+
+      td.acciones-cell a,
+      td.acciones-cell button {
+        margin: 0 !important;
+      }
+
   body
-    //- Cambiar esta parte en layout.pug - SOLO el div.user
     header.dashboard-header
       img.logo(src="/images/logo.png" alt="Logo")
       div.user
         .dropdown
           a.dropdown-toggle.text-white.text-decoration-none(
-            href="#", 
-            role="button", 
-            data-bs-toggle="dropdown", 
+            href="#",
+            role="button",
+            data-bs-toggle="dropdown",
             aria-expanded="false",
             style="cursor: pointer;"
           )
@@ -121,10 +152,9 @@ html(lang="es")
                 i.bi.bi-cash-coin.me-2
                 | Caja
             li
-              a.dropdown-item(href="/Productos")
+              a.dropdown-item(href="/productos")
                 i.bi.bi-box-seam.me-2
                 | Productos
-
 
     main.container
       block content
@@ -134,9 +164,10 @@ html(lang="es")
 
     script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js")
 
-
-     // 👇 ESTE BLOQUE ES EL QUE FALTABA
     block scripts
+
+
+
 
 
 
