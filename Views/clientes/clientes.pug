@@ -3,14 +3,20 @@ extends ../layout.pug
 block content
   h1 #{titulo}
 
-  // Botones Nuevo Cliente e inicio
+  // Botones Nuevo Cliente, Nueva mascota, inicio
   .d-flex.mb-3
     a.btn.btn-nuevo.me-2(href="/clientes/nuevo")
       i.bi.bi-plus-circle
       |  Nuevo Cliente
+
+    a.btn.btn-nuevo.me-2(href="/mascotas/nuevo")
+      i.bi.bi-heart-fill
+      |  Nueva Mascota
+
     a.btn.btn-secondary(href="/dashboard")
       i.bi.bi-house
       |  Inicio
+
 
   table.table.table-striped.table-bordered
     thead
