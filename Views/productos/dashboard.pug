@@ -1,146 +1,62 @@
-doctype html
-html(lang="es")
-  head
-    meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1.0")
-    title Productos - Huellitas Felices
+extends ../layout.pug
 
-    // Google Fonts
-    link(rel="preconnect" href="https://fonts.googleapis.com")
-    link(rel="preconnect" href="https://fonts.gstatic.com" crossorigin)
-    link(href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet")
+block content
+  h2.mb-4 Lista de Productos
 
-    // Bootstrap CSS
-    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet")
+  // Botones Nuevo Producto e Inicio
+  .d-flex.mb-3
+    a.btn.btn-nuevo.me-2(href="/productos/nuevo")
+      i.bi.bi-plus-circle
+      |  Nuevo Producto
+    a.btn.btn-secondary(href="/dashboard")
+      i.bi.bi-house
+      |  Inicio
 
-    // Bootstrap Icons
-    link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css")
+  if productos && productos.length
+    table.table.table-striped.table-bordered
+      thead
+        tr
+          th Código
+          th Nombre
+          th Proveedor
+          th Costo Unitario
+          th Unidad de Venta
+          th Categoría
+          th Precio Venta
+          th Stock Actual
+          th Stock Mínimo
+          th Acciones
+      tbody
+        each p in productos
+          tr
+            td= p.codigo
+            td= p.nombre
+            td= p.proveedor
+            td $#{(p.costo_unitario ? p.costo_unitario.toFixed(2) : "0.00")}
+            td= p.unidad_venta
+            td= p.categoria
+            td $#{(p.precio_venta ? p.precio_venta.toFixed(2) : "0.00")}
+            td= p.stock_actual
+            td= p.stock_minimo
+            td
+              a.btn.btn-acciones.editar(href=`/productos/editar/${p._id}`)
+                i.bi.bi-pencil-fill
+              button.btn.btn-acciones.eliminar.btn-eliminar(data-id=p._id)
+                i.bi.bi-trash-fill
+  else
+    p.text-center.mt-4 No hay productos registrados.
 
-    style.
-      body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #F0EDE7;
-        color: #333;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
-      main { flex: 1; padding: 20px 0; }
+block scripts
+  script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
+  script.
+    document.querySelectorAll(".btn-eliminar").forEach(btn => {
+      btn.addEventListener("click", function () {
+        const id = this.getAttribute("data-id");
 
-      .dashboard-header {
-        width: 100%;
-        height: 60px;
-        background-color: #762051;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 20px;
-      }
+        Swal.fire({
+          title: "¿Eliminar Producto?",
+          text: "Esta acción no se
 
-      .dashboard-header .logo { height: 40px; }
-      .dashboard-header .user { color: #fff; font-weight: 200; }
-
-      table { background-color: #fff; }
-      th, td { text-align: center; vertical-align: middle; }
-
-      .btn-nuevo {
-        background-color: #762051;
-        border-color: #762051;
-        color: #fff;
-      }
-      .btn-acciones.editar { background-color: #E49AC3; border-color: #E49AC3; }
-      .btn-acciones.eliminar { background-color: #9A4475; border-color: #9A4475; }
-
-      .btn-acciones { margin: 5px 5px; color: #fff; }
-      .btn-acciones:hover { opacity: 0.85; }
-
-      footer {
-        background-color: #762051;
-        color: #fff;
-        text-align: center;
-        padding: 15px;
-      }
-
-  body
-    header.dashboard-header
-      img.logo(src="/images/logo.png" alt="Logo")
-      div.user
-        i.bi.bi-person-circle
-        |  Ferrazin Nervegna Mayra
-
-    main.container
-      h2.mb-4 Lista de Productos
-
-      .d-flex.mb-3
-        a.btn.btn-nuevo.me-2(href="/productos/nuevo")
-          i.bi.bi-plus-circle
-          |  Nuevo Producto
-        a.btn.btn-secondary(href="/dashboard")
-          i.bi.bi-house
-          |  Inicio
-
-      if productos.length
-        table.table.table-striped.table-bordered
-          thead
-            tr
-              th Código
-              th Nombre
-              th Proveedor
-              th Costo Unitario
-              th Unidad de Venta
-              th Categoría
-              th Precio Venta
-              th Stock Actual
-              th Stock Mínimo
-              th Acciones
-          tbody
-            each p in productos
-              tr
-                td= p.codigo
-                td= p.nombre
-                td= p.proveedor
-                td $#{(p.costo_unitario ? p.costo_unitario.toFixed(2) : "0.00")}
-                td= p.unidad_venta
-                td= p.categoria
-                td $#{(p.precio_venta ? p.precio_venta.toFixed(2) : "0.00")}
-                td= p.stock_actual
-                td= p.stock_minimo
-                td
-                  a.btn.btn-acciones.editar(href=`/productos/editar/${p._id}`)
-                    i.bi.bi-pencil-fill
-                  button.btn.btn-acciones.eliminar.btn-eliminar(data-id=p._id)
-                    i.bi.bi-trash-fill
-      else
-        p.text-center.mt-4 No hay productos registrados.
-
-    script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
-
-    script.
-      document.querySelectorAll(".btn-eliminar").forEach(btn => {
-        btn.addEventListener("click", function () {
-          const id = this.getAttribute("data-id");
-
-          Swal.fire({
-            title: "¿Eliminar Producto?",
-            text: "Esta acción no se puede deshacer",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#9A4475",
-            cancelButtonColor: "#E49AC3",
-            confirmButtonText: "Sí, eliminar",
-            cancelButtonText: "Cancelar"
-          }).then((result) => {
-            if (result.isConfirmed) {
-              window.location.href = `/productos/eliminar/${id}`;
-            }
-          });
-        });
-      });
-
-    footer
-      | Todos los derechos reservados © 2025 Huellitas Felices
-
-    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js")
 
 
 
