@@ -114,7 +114,8 @@ html(lang="es")
 
   body
     header.dashboard-header
-      img.logo(src="/images/logo.png" alt="Logo")
+      a(href="/dashboard")
+        img.logo(src="/images/logo.png" alt="Logo")
       div.user
         .dropdown
           a.dropdown-toggle.text-white.text-decoration-none(
@@ -155,6 +156,7 @@ html(lang="es")
               a.dropdown-item(href="/productos")
                 i.bi.bi-box-seam.me-2
                 | Productos
+
 
     main.container
       block content
