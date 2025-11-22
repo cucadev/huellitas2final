@@ -1,20 +1,29 @@
 extends ../layout.pug
 
 block content
-  h1.text-center.mb-4 #{titulo}
+  .d-flex.justify-content-between.align-items-center.mb-4
+    h2 #{titulo}
+    .d-flex
+      a.btn.btn-secondary.me-2(href="/productos") 
+        i.bi.bi-box-seam.me-1
+        | Productos
+      a.btn.btn-secondary(href="/dashboard") 
+        i.bi.bi-house.me-1
+        | Inicio
 
-  //- Mostrar saldo actual
+  //- Saldo actual
   .card.mb-4.shadow-sm.p-3(style="background-color:#ffffff; border-left: 5px solid #762051;")
     h4.text-center Saldo actual: 
       span.text-success $#{saldo.toFixed(2)}
 
+  //- Formulario de registro
   .card.mb-4.shadow-sm.p-3
     h5.mb-3 Registrar Movimiento
     form(action="/caja" method="POST")
       .mb-3
         label.form-label(for="tipo") Tipo de Movimiento
         select.form-select(name="tipo" required)
-          option(value="") Seleccione...
+          option(value="" disabled selected) Seleccione...
           option(value="ingreso") Ingreso
           option(value="egreso") Egreso
       .mb-3
@@ -49,3 +58,4 @@ block content
             td #{m.descripcion}
   else
     p.text-center.text-muted No hay movimientos registrados en caja.
+
